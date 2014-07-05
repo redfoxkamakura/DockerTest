@@ -30,6 +30,7 @@ sudo cp /home/vagrant/util-linux/nsenter /usr/local/bin
 # use
 # PID=$(docker inspect --format '{{.State.Pid}}' my_container_id)
 # nsenter --target $PID --mount --uts --ipc --net --pid
+
 SCRIPT
 
 #############################
