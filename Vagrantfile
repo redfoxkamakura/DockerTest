@@ -10,6 +10,7 @@ sudo apt-get -y upgrade
 SCRIPT
 
 $install_docker = <<SCRIPT
+#!/bin/bash
 
 sudo apt-get -y install docker.io
 sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
@@ -30,6 +31,15 @@ sudo cp /home/vagrant/util-linux/nsenter /usr/local/bin
 # use
 # PID=$(docker inspect --format '{{.State.Pid}}' my_container_id)
 # nsenter --target $PID --mount --uts --ipc --net --pid
+
+SCRIPT
+
+# dockerui install
+$install_dockerui = <<SCRIPT
+
+#!/bin/bash
+sudo docker pull crosbymichael/dockerui
+sudo docker run -d -p 9000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
 
 SCRIPT
 
@@ -69,7 +79,7 @@ Vagrant.configure(2) do |config|
    # Provisioning
    web.vm.provision "shell", :inline => $app_update
    web.vm.provision "shell", :inline => $install_docker
-
+   web.vm.provision "shell", :inline => $install_dockerui
   end
 
 end
