@@ -21,7 +21,7 @@ sudo sh -c "echo deb https://get.docker.io/ubuntu docker main\
 sudo apt-get update
 sudo apt-get -y install lxc-docker
 
-# nsenter install
+# install nsenter
 #  container login tool
 #  see http://jpetazzo.github.io/2014/03/23/lxc-attach-nsinit-nsenter-docker-0-9/
 cd /home/vagrant && git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git util-linux
@@ -34,12 +34,22 @@ sudo cp /home/vagrant/util-linux/nsenter /usr/local/bin
 
 SCRIPT
 
-# dockerui install
-$install_dockerui = <<SCRIPT
+# install docker images
+$install_docker_images = <<SCRIPT
 
 #!/bin/bash
+
+# DockerUI
 sudo docker pull crosbymichael/dockerui
-sudo docker run -d -p 9000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
+sudo docker run -d -p 10000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
+
+# Jenkins
+sudo docker pull orchardup/jenkins
+sudo docker run -d -p 10001:8080 orchardup/jenkins
+
+# GitBucket
+sudo docker pull f99aq8ove/gitbucket
+sudo docker run -d -p 10002:8080 -v ${PWD}/gitbucket-data:/gitbucket -P f99aq8ove/gitbucket
 
 SCRIPT
 
@@ -79,7 +89,7 @@ Vagrant.configure(2) do |config|
    # Provisioning
    web.vm.provision "shell", :inline => $app_update
    web.vm.provision "shell", :inline => $install_docker
-   web.vm.provision "shell", :inline => $install_dockerui
+   web.vm.provision "shell", :inline => $install_docker_images
   end
 
 end
