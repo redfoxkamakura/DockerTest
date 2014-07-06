@@ -9,6 +9,7 @@ sudo apt-get -y upgrade
 
 SCRIPT
 
+# install Docker
 $install_docker = <<SCRIPT
 #!/bin/bash
 
@@ -53,6 +54,20 @@ sudo docker run -d -p 10002:8080 -v ${PWD}/gitbucket-data:/gitbucket -P f99aq8ov
 
 SCRIPT
 
+# install orchestration tools
+$install_orchestrations = <<SCRIPT
+
+# Capistrano
+sudo gem install capistrano
+
+# Chef
+cd /home/vagrant && curl -L https://www.opscode.com/chef/install.sh | sudo bash
+sudo apt-get install -y ruby-dev
+sudo gem install knife-solo
+
+SCRIPT
+
+
 #############################
 # Vagrantfile
 #############################
@@ -90,6 +105,7 @@ Vagrant.configure(2) do |config|
    web.vm.provision "shell", :inline => $app_update
    web.vm.provision "shell", :inline => $install_docker
    web.vm.provision "shell", :inline => $install_docker_images
+   web.vm.provision "shell", :inline => $install_orchestrations
   end
 
 end
