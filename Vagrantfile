@@ -52,10 +52,15 @@ sudo docker run -d -p 10001:8080 orchardup/jenkins
 sudo docker pull f99aq8ove/gitbucket
 sudo docker run -d -p 10002:8080 -v ${PWD}/gitbucket-data:/gitbucket -P f99aq8ove/gitbucket
 
+# DroneIO
+sudo docker pull crosbymichael/drone
+sudo docker run -d -p 10003:80 crosbymichael/drone
+# http://192.168.33.10:10003/install
+
 SCRIPT
 
 # install orchestration tools
-$install_orchestrations = <<SCRIPT
+$install_orchestration_tools = <<SCRIPT
 
 # Capistrano
 sudo gem install capistrano
@@ -66,7 +71,6 @@ sudo apt-get install -y ruby-dev
 sudo gem install knife-solo
 
 SCRIPT
-
 
 #############################
 # Vagrantfile
