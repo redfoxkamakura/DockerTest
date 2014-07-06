@@ -9,7 +9,9 @@ sudo apt-get -y upgrade
 
 SCRIPT
 
+# install Docker
 $install_docker = <<SCRIPT
+#!/bin/bash
 
 sudo apt-get -y install docker.io
 sudo ln -sf /usr/bin/docker.io /usr/local/bin/docker
@@ -20,7 +22,7 @@ sudo sh -c "echo deb https://get.docker.io/ubuntu docker main\
 sudo apt-get update
 sudo apt-get -y install lxc-docker
 
-# nsenter install
+# install nsenter
 #  container login tool
 #  see http://jpetazzo.github.io/2014/03/23/lxc-attach-nsinit-nsenter-docker-0-9/
 cd /home/vagrant && git clone git://git.kernel.org/pub/scm/utils/util-linux/util-linux.git util-linux
@@ -30,6 +32,43 @@ sudo cp /home/vagrant/util-linux/nsenter /usr/local/bin
 # use
 # PID=$(docker inspect --format '{{.State.Pid}}' my_container_id)
 # nsenter --target $PID --mount --uts --ipc --net --pid
+
+SCRIPT
+
+# install docker images
+$install_docker_images = <<SCRIPT
+
+#!/bin/bash
+
+# DockerUI
+sudo docker pull crosbymichael/dockerui
+sudo docker run -d -p 10000:9000 -v /var/run/docker.sock:/docker.sock crosbymichael/dockerui -e /docker.sock
+
+# Jenkins
+sudo docker pull orchardup/jenkins
+sudo docker run -d -p 10001:8080 orchardup/jenkins
+
+# GitBucket
+sudo docker pull f99aq8ove/gitbucket
+sudo docker run -d -p 10002:8080 -v ${PWD}/gitbucket-data:/gitbucket -P f99aq8ove/gitbucket
+
+# DroneIO
+sudo docker pull crosbymichael/drone
+sudo docker run -d -p 10003:80 crosbymichael/drone
+# http://192.168.33.10:10003/install
+
+SCRIPT
+
+# install orchestration tools
+$install_orchestration_tools = <<SCRIPT
+
+# Capistrano
+sudo gem install capistrano
+
+# Chef
+cd /home/vagrant && curl -L https://www.opscode.com/chef/install.sh | sudo bash
+sudo apt-get install -y ruby-dev
+sudo gem install knife-solo
 
 SCRIPT
 
@@ -69,7 +108,8 @@ Vagrant.configure(2) do |config|
    # Provisioning
    web.vm.provision "shell", :inline => $app_update
    web.vm.provision "shell", :inline => $install_docker
-
+   web.vm.provision "shell", :inline => $install_docker_images
+   web.vm.provision "shell", :inline => $install_orchestrations
   end
 
 end
